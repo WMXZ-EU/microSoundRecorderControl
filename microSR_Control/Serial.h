@@ -74,27 +74,27 @@ void comClose(void)
 	CloseHandle(file);
 }
 
-void T_load(char c, char *text, int nret)
+int T_load(char c, char *text, int mret)
 {
 	DWORD nn = 0;
 	DWORD written, read;
 
+	// clear input buffer
 	char *p = text;
-	do { if (BOOL ret = ReadFile(file, p, 1, &read, NULL)) continue; } while (read > 0);
-	//
+	do { BOOL ret = ReadFile(file, p, 1, &read, NULL); } while (read > 0);
+	
+	// send command
 	char txt[4];
 	sprintf_s(txt, 4, "?%c", c);
-	WriteFile(file, txt, 2, &written, NULL); printf("%s ", txt);
-	//
-	nn = 0;
-	do
-	{
-		BOOL ret = ReadFile(file, p, 1, &read, NULL); if ((*p >= ' ') && (*p < 'z')) { nn += read; p += read; }
-		if (ret) continue;
-	} while (*p != '\n');
-	*p = 0;
+	WriteFile(file, txt, 2, &written, NULL); 
+	printf("%s ", txt);
 
+	// read reply
+	nn = 0;
+	do { BOOL ret = ReadFile(file, p, 1, &read, NULL); if ((*p >= ' ') && (*p < 'z')) { nn += read; p += read; } } while (*p != '\n');
+	*p = 0;
 	printf("%s\n", text);
+	return nn;
 }
 
 void T_store(char c, char *txt)
